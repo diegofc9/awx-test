@@ -1,0 +1,22 @@
+---
+- name: Listar directorios y uso de disco
+  hosts: all
+  gather_facts: false
+  tasks:
+
+    - name: Listar directorios en /tmp
+      ansible.builtin.command: ls -l /tmp
+      register: listado
+      ignore_errors: yes
+
+    - name: Mostrar listado de directorios
+      ansible.builtin.debug:
+        var: listado.stdout_lines
+
+    - name: Mostrar uso de disco
+      ansible.builtin.command: df -h
+      register: disco
+
+    - name: Mostrar resultado de df -h
+      ansible.builtin.debug:
+        var: disco.stdout_lines
