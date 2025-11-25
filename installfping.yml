@@ -1,0 +1,16 @@
+---
+- name: Instalar fping si no está instalado
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Verificar si fping está instalado
+      command: which fping
+      register: fping_check
+      ignore_errors: yes
+
+    - name: Instalar fping si no está instalado
+      package:
+        name: fping
+        state: present
+      when: fping_check.rc != 0
