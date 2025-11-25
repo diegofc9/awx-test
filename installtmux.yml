@@ -1,0 +1,10 @@
+---
+- name: Instalar tmux
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Asegurar que tmux está instalado
+      package:
+        name: tmux
+        state: present
