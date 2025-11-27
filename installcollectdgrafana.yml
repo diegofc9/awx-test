@@ -5,14 +5,19 @@
 
   tasks:
 
+    - name: Instalar EPEL
+      ansible.builtin.dnf:
+        name: epel-release
+        state: present
+
     - name: Instalar collectd
-      ansible.builtin.package:
+      ansible.builtin.dnf:
         name: collectd
         state: present
 
-    - name: Instalar InfluxDB
-      ansible.builtin.package:
-        name: influxdb
+    - name: Instalar InfluxDB desde RPM oficial
+      ansible.builtin.dnf:
+        name: https://repos.influxdata.com/rhel/influxdb-2.x.rpm
         state: present
 
     - name: Arrancar y habilitar InfluxDB
@@ -21,9 +26,9 @@
         state: started
         enabled: yes
 
-    - name: Instalar Grafana
-      ansible.builtin.package:
-        name: grafana
+    - name: Instalar Grafana desde RPM oficial
+      ansible.builtin.dnf:
+        name: https://rpm.grafana.com/grafana-rpm/release/grafana-9.4.4-1.x86_64.rpm
         state: present
 
     - name: Arrancar y habilitar Grafana
@@ -45,17 +50,14 @@
 
     - name: Abrir puertos con firewalld
       ansible.builtin.firewalld:
-        service: "{{ item.service | default(omit) }}"
-        port: "{{ item.port }}"
+        port: "{{ item }}"
         permanent: yes
         state: enabled
         immediate: yes
       loop:
-        - { port: '25826/udp' }
-        - { port: '25826/tcp' }
-        - { port: '3000/tcp' }
-      when: ansible_facts['os_family'] == "RedHat"
-
+        - '25826/tcp'
+        - '25826/udp'
+        - '3000/tcp'
 
   handlers:
     - name: restart collectd
