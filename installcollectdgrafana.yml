@@ -1,23 +1,23 @@
 ---
-- name: Instalar collectd, InfluxDB y Grafana en serverc
+- name: Instalar collectd, InfluxDB y Grafana en serverc (RHEL)
   hosts: all
   become: yes
 
   tasks:
 
-    - name: Instalar EPEL
-      ansible.builtin.dnf:
+    - name: Instalar repositorio EPEL
+      ansible.builtin.yum:
         name: epel-release
         state: present
 
     - name: Instalar collectd
-      ansible.builtin.dnf:
+      ansible.builtin.yum:
         name: collectd
         state: present
 
-    - name: Instalar InfluxDB desde RPM oficial
-      ansible.builtin.dnf:
-        name: https://repos.influxdata.com/rhel/influxdb-2.x.rpm
+    - name: Instalar InfluxDB
+      ansible.builtin.yum:
+        name: influxdb
         state: present
 
     - name: Arrancar y habilitar InfluxDB
@@ -26,9 +26,9 @@
         state: started
         enabled: yes
 
-    - name: Instalar Grafana desde RPM oficial
-      ansible.builtin.dnf:
-        name: https://rpm.grafana.com/grafana-rpm/release/grafana-9.4.4-1.x86_64.rpm
+    - name: Instalar Grafana
+      ansible.builtin.yum:
+        name: grafana
         state: present
 
     - name: Arrancar y habilitar Grafana
