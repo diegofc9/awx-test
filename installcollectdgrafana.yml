@@ -1,0 +1,73 @@
+---
+- name: Instalar collectd, InfluxDB y Grafana en serverc
+  hosts: serverc
+  become: yes
+
+  tasks:
+
+    - name: Instalar collectd
+      ansible.builtin.package:
+        name: collectd
+        state: present
+
+    - name: Instalar InfluxDB
+      ansible.builtin.package:
+        name: influxdb
+        state: present
+
+    - name: Arrancar y habilitar InfluxDB
+      ansible.builtin.service:
+        name: influxdb
+        state: started
+        enabled: yes
+
+    - name: Instalar Grafana
+      ansible.builtin.package:
+        name: grafana
+        state: present
+
+    - name: Arrancar y habilitar Grafana
+      ansible.builtin.service:
+        name: grafana-server
+        state: started
+        enabled: yes
+
+    - name: Crear base de datos para collectd en InfluxDB
+      ansible.builtin.command: influx -execute "CREATE DATABASE collectd"
+      args:
+        creates: /var/lib/influxdb/data/collectd
+
+    - name: Copiar configuración de collectd para serverc
+      ansible.builtin.template:
+        src: templates/collectd_serverc.conf.j2
+        dest: /etc/collectd/collectd.conf
+      notify: restart collectd
+
+    - name: Abrir puertos con firewalld
+      ansible.builtin.firewalld:
+        service: "{{ item.service | default(omit) }}"
+        port: "{{ item.port }}"
+        permanent: yes
+        state: enabled
+        immediate: yes
+      loop:
+        - { port: '25826/udp' }
+        - { port: '25826/tcp' }
+        - { port: '3000/tcp' }
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Abrir puertos con ufw
+      ansible.builtin.ufw:
+        rule: allow
+        port: "{{ item }}"
+      loop:
+        - 25826
+        - 3000
+      when: ansible_facts['os_family'] == "Debian"
+
+  handlers:
+    - name: restart collectd
+      ansible.builtin.service:
+        name: collectd
+        state: restarted
+        enabled: yes
