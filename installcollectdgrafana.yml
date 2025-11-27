@@ -56,14 +56,6 @@
         - { port: '3000/tcp' }
       when: ansible_facts['os_family'] == "RedHat"
 
-    - name: Abrir puertos con ufw
-      ansible.builtin.ufw:
-        rule: allow
-        port: "{{ item }}"
-      loop:
-        - 25826
-        - 3000
-      when: ansible_facts['os_family'] == "Debian"
 
   handlers:
     - name: restart collectd
