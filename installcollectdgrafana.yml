@@ -1,6 +1,6 @@
 ---
 - name: Instalar collectd, InfluxDB y Grafana en serverc
-  hosts: serverc
+  hosts: all
   become: yes
 
   tasks:
